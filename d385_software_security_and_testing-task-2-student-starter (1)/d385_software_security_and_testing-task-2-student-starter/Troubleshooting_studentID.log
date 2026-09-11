@@ -1,0 +1,50 @@
+2025-12-22 06:00:10 - INFO - Application 'EquipmentRentalAPI' started. Version 2.2.0
+2025-12-22 06:00:11 - INFO - API endpoints initialized
+2025-12-22 06:00:12 - WARNING - API Key authentication not enforced on all endpoints
+2025-12-22 08:15:22 - INFO - GET /api/v1/rentals from 192.168.1.55
+2025-12-22 08:16:45 - INFO - POST /api/v1/rentals - Equipment: Excavator, Days: 5, Total: $2250
+2025-12-22 09:30:00 - INFO - User 'alice' authenticated successfully
+2025-12-22 10:15:33 - WARNING - Admin endpoint accessed without authentication
+2025-12-22 10:15:34 - ERROR - Broken access control detected on /api/v1/admin/users
+2025-12-22 14:22:33 - INFO - System health check: OK
+2025-12-23 06:00:10 - INFO - Application started
+2025-12-23 09:12:15 - ERROR - SQL query error: username parameter contains suspicious characters
+2025-12-23 09:12:16 - ERROR - Potential SQL injection: ' OR '1'='1 in username field
+2025-12-23 09:15:01 - ERROR - Dangerous SQL pattern detected: DROP TABLE
+2025-12-23 10:30:00 - WARNING - Rental calculation with negative days: -10
+2025-12-23 10:30:01 - ERROR - Business logic flaw: negative cost calculated ($-5000)
+2025-12-23 11:45:00 - INFO - IP 198.51.100.45 blocked after SQL injection attempts
+2025-12-24 02:15:06 - ERROR - Brute force attack: 50 authentication attempts in 10 seconds
+2025-12-24 02:15:07 - WARNING - No rate limiting configured - attack not prevented
+2025-12-24 02:20:00 - ERROR - Account 'admin' compromised via brute force
+2025-12-24 09:00:00 - WARNING - Sensitive data (SSN) included in API response
+2025-12-24 10:15:00 - ERROR - XSS payload detected in search query
+2025-12-24 10:15:01 - WARNING - Unsanitized input reflected in response
+2025-12-24 15:30:00 - WARNING - API key exposed in URL parameter
+2025-12-25 03:00:10 - ERROR - DoS attack: 1000 requests in 10 seconds from single IP
+2025-12-25 03:00:11 - WARNING - Server CPU at 95% - service degradation
+2025-12-25 03:00:15 - ERROR - No rate limiting - DoS attack successful
+2025-12-25 10:30:01 - ERROR - User deletion without authentication from external IP
+2025-12-25 10:30:02 - ERROR - User 'alice' deleted by unauthenticated request
+2025-12-26 08:00:01 - WARNING - Least privilege violation: all rentals returned to non-admin user
+2025-12-26 09:15:01 - ERROR - TypeError: days parameter was string 'abc' - no type validation
+2025-12-26 09:15:02 - WARNING - Stack trace exposed in error response
+2025-12-26 10:00:00 - WARNING - Hardcoded secret detected in source code
+2025-12-26 11:30:01 - WARNING - User 'alice' accessed user 'bob' data - authorization bypass
+2025-12-26 15:00:00 - ERROR - Database error details leaked in response
+2025-12-27 07:45:01 - ERROR - Memory allocation failed - oversized input (10000 chars)
+2025-12-27 07:45:02 - WARNING - No input length validation implemented
+2025-12-27 09:00:01 - WARNING - Boundary check failed: days=999999 accepted
+2025-12-27 11:00:00 - ERROR - Password hash exposed in API response
+2025-12-27 16:00:01 - WARNING - Mass assignment: extra JSON fields accepted
+2025-12-28 08:00:02 - INFO - Security audit initiated
+2025-12-28 08:00:03 - ERROR - AUDIT: SQL Injection vulnerability confirmed
+2025-12-28 08:00:04 - ERROR - AUDIT: Broken Access Control confirmed
+2025-12-28 08:00:05 - ERROR - AUDIT: Missing authentication on API routes
+2025-12-28 08:00:06 - ERROR - AUDIT: No rate limiting implemented
+2025-12-28 08:00:07 - ERROR - AUDIT: Hardcoded secrets in source
+2025-12-28 08:00:08 - ERROR - AUDIT: Sensitive data exposure in responses
+2025-12-28 08:00:09 - ERROR - AUDIT: XSS vulnerability in search
+2025-12-28 08:00:10 - ERROR - AUDIT: Missing input validation
+2025-12-28 08:00:11 - WARNING - AUDIT: Least privilege violations detected
+2025-12-28 08:00:12 - INFO - Immediate security remediation required

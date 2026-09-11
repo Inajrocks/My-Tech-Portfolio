@@ -1,0 +1,122 @@
+{
+  "penetration_test_report": {
+    "title": "WGU Construction Equipment Rental API - Penetration Test Report",
+    "date": "2026-09-07",
+    "tester": "Jani McCoy - 011006406",
+    "target_system": "EquipmentRentalAPI v2.2.0",
+    "scope": "API endpoints at /api/v1/*",
+    "executive_summary": "The review identified critical weaknesses in such as SQL Injection, authentication and authorization, rate limiting, sensitive-data protection, and input validation. The network log records successful SQL injection, unauthenticated administrative access, brute-force compromise, exposed SSNs, XSS probes, and denial-of-service activity. Immediate priority should be given to parameterized queries, authentication and authorization controls, rate limiting, and removal of sensitive data from API responses.",
+    "findings": [
+      {
+        "id": "VULN-001",
+        "attack_type": "SQL Injection",
+        "severity": "CRITICAL",
+        "cvss_score": 9.8,
+        "endpoint": "GET /api/v1/user?username=...",
+        "observable_pattern": "User input was concatenated directly into a SQL statement, allowing SQL syntax to alter query behavior.",
+        "evidence": "The log records a probe using username=' OR '1'='1, followed by 'Database query returned ALL users - SQL injection successful!' and a later DROP TABLE attempt.",
+        "impact": "Attackers could bypass intended lookups, read user records, alter data, or damage the database.",
+        "recommended_mitigation": [
+          "Use parameterized queries and bind username as a query parameter.",
+          "Validate input, use a database account with least privilege, and monitor suspicious query activity."
+        ]
+      },
+      {
+        "id": "VULN-002",
+        "attack_type": "Broken Access Control and Missing API Authentication",
+        "severity": "CRITICAL",
+        "cvss_score": 9.1,
+        "endpoint": "/api/v1/admin/* and /api/v1/rentals",
+        "observable_pattern": "Administrative and rental endpoints accepted requests without verifying identity or role permissions.",
+        "evidence": "The log records unauthenticated access to /api/v1/admin/users, user deletion without authentication, and rental responses containing records for all users.",
+        "impact": "Unauthenticated or low-privilege users could view protected information or perform administrative and destructive actions.",
+        "recommended_mitigation": [
+          "Require a validated Bearer token on every protected endpoint.",
+          "Enforce server-side role checks and return HTTP 403 Forbidden when a user lacks the required permission."
+        ]
+      },
+      {
+        "id": "VULN-003",
+        "attack_type": "Brute Force and Denial of Service",
+        "severity": "HIGH",
+        "cvss_score": 8.1,
+        "endpoint": "POST /api/v1/authenticate and API service generally",
+        "observable_pattern": "The service accepted rapid repeated authentication and API requests without rate limiting.",
+        "evidence": "The log records 50 authentication attempts in 10 seconds, account compromise, and 1,000 requests in 10 seconds that caused CPU exhaustion and service degradation.",
+        "impact": "Attackers could guess credentials, compromise accounts, exhaust resources, and make the service unavailable.",
+        "recommended_mitigation": [
+          "Apply rate limits by IP address, account, and API key, returning HTTP 429 when limits are exceeded.",
+          "Add account lockout or progressive delays, request-size limits, and upstream traffic protection."
+        ]
+      },
+      {
+        "id": "VULN-004",
+        "attack_type": "Sensitive Data Exposure and Broken Least Privilege",
+        "severity": "HIGH",
+        "cvss_score": 7.5,
+        "endpoint": "GET /api/v1/rentals and GET /api/v1/user",
+        "observable_pattern": "Responses exposed data belonging to other users, SSNs, passwords, or password hashes.",
+        "evidence": "The log records SSN fields in rental responses, password-hash exposure, and one user accessing another user's data without an authorization check.",
+        "impact": "Personal information and authentication data could be stolen, enabling identity fraud, credential attacks, and privacy violations.",
+        "recommended_mitigation": [
+          "Return only fields required for the current operation and remove SSNs, passwords, and password hashes from API responses.",
+          "Authorize access by resource owner or approved role and review response schemas for unintended data exposure."
+        ]
+      },
+      {
+        "id": "VULN-005",
+        "attack_type": "Cross-Site Scripting and Missing Input Validation",
+        "severity": "MEDIUM",
+        "cvss_score": 6.1,
+        "endpoint": "GET /api/v1/search and POST /api/v1/rentals",
+        "observable_pattern": "Search input was reflected without sanitization, and rental values were accepted without type, range, or length checks.",
+        "evidence": "The log records an XSS probe using <script>alert('XSS')</script>, negative rental days, non-numeric days, oversized search input, and an extreme rental period.",
+        "impact": "Attackers could execute script in a consuming client, trigger errors, create invalid charges, or consume excessive resources.",
+        "recommended_mitigation": [
+          "Apply allowlist validation, type checks, length limits, and numeric boundary checks to every request field.",
+          "Escape output for its response context and reject unexpected JSON fields or malformed values."
+        ]
+      }
+    ],
+    "attack_summary": {
+      "sql_injection": {
+        "description": "SQL injection occurs when untrusted input is combined with SQL text, allowing the input to change the intended database operation.",
+        "indicators_observed": "The logs show tautology-based input, a successful query returning all users, repeated probes, and a DROP TABLE attempt."
+      },
+      "buffer_overflow": {
+        "description": "A buffer-overflow-style attack supplies input larger than an application or dependency expects, potentially causing memory errors or service instability.",
+        "indicators_observed": "The log records a 10,000-character search request followed by a memory-allocation failure. This is evidence of missing length validation, although it does not prove a native memory corruption vulnerability."
+      },
+      "xss": {
+        "description": "Cross-Site Scripting occurs when attacker-controlled content is returned to a browser or client without context-appropriate output encoding.",
+        "indicators_observed": "The log records a script payload sent to the search endpoint and notes that unsanitized input was reflected in the response."
+      },
+      "dns_hijacking": {
+        "description": "DNS hijacking redirects users or services to an attacker-controlled destination by tampering with DNS resolution or related infrastructure.",
+        "indicators_observed": "The log records a suspicious DNS query for api.malicious-domain.com and identifies possible DNS hijacking or data exfiltration. Further network investigation would be required to confirm hijacking."
+      },
+      "dos": {
+        "description": "A Denial of Service attack overwhelms an application or its supporting infrastructure so legitimate users cannot access it reliably.",
+        "indicators_observed": "The log records 1,000 requests in 10 seconds, CPU usage of 95 percent, response times above five seconds, and successful service degradation caused by missing rate limiting."
+      }
+    },
+    "remediation_priority": [
+      {
+        "priority": 1,
+        "vulnerability": "VULN-001",
+        "reason": "SQL injection was recorded as successful and could expose or modify the entire database."
+      },
+      {
+        "priority": 2,
+        "vulnerability": "VULN-002",
+        "reason": "Missing authentication and authorization exposed administrative and destructive operations to unauthenticated users."
+      },
+      {
+        "priority": 3,
+        "vulnerability": "VULN-003",
+        "reason": "The logs show account compromise and service degradation caused by unrestricted request volume."
+      }
+    ],
+    "conclusion": "The API should not be considered production-ready until parameterized queries, authentication, role-based authorization, rate limiting, input validation, and response-data minimization are implemented. Secrets must be removed from source code, debug mode must remain disabled in production, and protected logging and monitoring should be enabled. The documented attacks demonstrate that the current weaknesses can lead to database compromise, account takeover, privacy breaches, and service disruption."
+  }
+}
